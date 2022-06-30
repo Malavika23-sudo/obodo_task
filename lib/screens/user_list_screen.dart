@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:obodo_app/user_model.dart';
 
 class UserListScreen extends StatefulWidget {
   static String routeName = "/userListScreen";
@@ -10,6 +11,7 @@ class UserListScreen extends StatefulWidget {
 }
 
 class _UserListScreenState extends State<UserListScreen> {
+  UserModel userModels=UserModel();
   // final _firebasecore = FirebaseFirestore.instance;
   // CollectionReference _list = FirebaseFirestore.instance.collection('user');
   // Stream? _stremItems;
@@ -54,7 +56,6 @@ class _UserListScreenState extends State<UserListScreen> {
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
-
                     children: [
                       Text(
                         'User List',
@@ -113,19 +114,32 @@ class _UserListScreenState extends State<UserListScreen> {
                         final data =  snapshot.requireData;
                         print('DATA SNAP=================================> ${snapshot.data}');
                         return ListView.builder(
-                            itemCount: data.size,
+                            itemCount:   userModels.userModel.length,
                             itemBuilder: (context,index){
                               return Column(
                                 children: [
-                                  Text(data.toString(),style: TextStyle(color: Colors.black,fontSize: 30),),
+
+                                  Text('name ${userModels.name}',style: TextStyle(color: Colors.black),),
                                   Text('name ${data.docs[index]['name']}',style: TextStyle(color: Colors.black),),
                                 ],
                               );
                             });
+                },),
 
-
-
-                },)
+                // Container(
+                //   height: 200,
+                //   color: Colors.redAccent,
+                //   child: ListView.builder(
+                //       itemCount:   userModels.userModel.length,
+                //       itemBuilder: (context,index){
+                //         return Column(
+                //           children: [
+                //
+                //             Text('name ${userModels.userModel[UserModel.name]}',style: TextStyle(color: Colors.black,fontSize: 20),),
+                //           ],
+                //         );
+                //       }),
+                // ),
                       // StreamBuilder<QuerySnapshot>(
                       //   stream: _firebasecore.collection('user').snapshots(),
                       //   builder:

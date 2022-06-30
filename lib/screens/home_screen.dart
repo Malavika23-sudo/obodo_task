@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:obodo_app/screens/user_list_screen.dart';
+import 'package:obodo_app/user_model.dart';
 
 enum Sex { female, male }
 
@@ -24,6 +27,50 @@ class _HomeScreenState extends State<HomeScreen> {
   String? location;
   Sex? _character = Sex.female;
   final _formKey = GlobalKey<FormState>();
+  Position? position;
+  UserModel userModels=UserModel();
+  
+  void getLocation() async {
+    // print('POSITION=====================>');
+    // Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    // print('POSITION=====================>');
+    // print(position);
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    try {
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      print("reached start of try block");
+      if (!serviceEnabled) {
+        print("reached start of try block");
+        return Future.error('Location services are disabled.');
+      }
+
+      permission = await Geolocator.checkPermission();
+      print("cont..  try block");
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          return Future.error('Location permissions are denied');
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        return Future.error(
+            'Location permissions are permanently denied, we cannot request permissions.');
+      }
+      var pos = await Geolocator.getCurrentPosition(
+          // forceAndroidLocationManager: true,
+          desiredAccuracy: LocationAccuracy.low);
+      setState(() {
+        position = pos;
+      });
+      print("Got position");
+      print('current Position ${position}.');
+    } catch (e) {
+      print(e);
+    }
+  }
 
   //
   // @override
@@ -216,9 +263,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: TextBox(
                       textEditingController: locationEditingController,
                       onValidate: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter Location';
+                        if (position == null) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Location';
+                          }
                         }
+
                         return null;
                       },
                       onChange: (value) {
@@ -230,6 +280,55 @@ class _HomeScreenState extends State<HomeScreen> {
                         });
                       },
                     ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: ScreenUtil().setWidth(32),
+                        ),
+                        child: Text(
+                          'Or',
+                          style: Theme.of(context).textTheme.headline2,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: ScreenUtil().setWidth(5),
+                            left: ScreenUtil().setWidth(16)),
+                        child: TextButton(
+                            onPressed: () {
+                              setState(() {
+                                getLocation();
+                              });
+                            },
+                            child: Text(
+                              'Get Current Location',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline2!
+                                  .merge(TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 15)),
+                            )),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                          position == null
+                              ? 'No position detected'
+                              : position.toString(),
+                          style: Theme.of(context).textTheme.headline2),
+                    ],
                   ),
                   // Padding(
                   //   padding: EdgeInsets.only(top: ScreenUtil().setWidth(32)),
@@ -280,10 +379,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               'name': name,
                               'phone': phone,
                               'sex': sex,
-                              'location': location,
+                              'location': location==null?position:location,
                               'timestamp': FieldValue.serverTimestamp()
                             });
-                            if (_formKey.currentState!.validate()) {
+                            userModels.userModel.add(UserModel(name: name));
+                            if (_formKey.currentState!.validate() ||
+                                (position != null &&
+                                    name != null &&
+                                    phone != null)) {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -325,13 +428,15 @@ class TextBox extends StatelessWidget {
   TextInputType? textType = TextInputType.multiline;
   final String? Function(String? value)? onValidate;
   TextEditingController? textEditingController;
+
   TextBox(
       {this.left = 16,
       this.obscure = false,
       this.toggleHide,
       this.textType,
       this.onChange,
-      this.onValidate,this.textEditingController});
+      this.onValidate,
+      this.textEditingController});
 
   @override
   Widget build(BuildContext context) {
