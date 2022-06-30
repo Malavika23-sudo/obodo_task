@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "296968157282",
+    "project_id": "obodo-c3034",
+    "storage_bucket": "obodo-c3034.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:296968157282:android:06e73d9e68ccd12649f93b",
+        "android_client_info": {
+          "package_name": "com.example.obodo_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "296968157282-hlghf9ari4f3gdtv7smus4e90p1md7jf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8WBrvHMZ8o-82ru0mGzVn7H3q1PJTNVg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "296968157282-hlghf9ari4f3gdtv7smus4e90p1md7jf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
